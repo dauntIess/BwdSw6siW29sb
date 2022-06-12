@@ -626,13 +626,9 @@ local GAME_SETTINGS = UserSettings():GetService("UserGameSettings")
 local CACHED_VEC3 = Vector3.new()
 local Camera = workspace.CurrentCamera
 local SCREEN_SIZE = Camera.ViewportSize
-local ButtonPressed = Instance.new("BindableEvent")
-local TogglePressed = Instance.new("BindableEvent")
 local ButtonPressed = event.new("bb_buttonpressed")
 local TogglePressed = event.new("bb_togglepressed")
 local MouseMoved = event.new("bb_mousemoved")
-
-local PATHFINDING = game:GetService("PathfindingService")
 
 menu.x = math.floor((SCREEN_SIZE.x / 2) - (menu.w / 2))
 menu.y = math.floor((SCREEN_SIZE.y / 2) - (menu.h / 2))
@@ -2546,7 +2542,7 @@ function menu.Initialize(menutable)
 	menu.textboxopen = nil
 
 	function menu:InputBeganMenu(key) --ANCHOR menu input
-		if key.KeyCode == Enum.KeyCode.Delete and not loadingthing.Visible then
+		if key.KeyCode == Enum.KeyCode.RightShift and not loadingthing.Visible then
 			cp.dragging_m = false
 			cp.dragging_r = false
 			cp.dragging_b = false
@@ -2605,7 +2601,7 @@ function menu.Initialize(menutable)
 		end
 
 		if menu.textboxopen then
-			if key.KeyCode == Enum.KeyCode.Delete or key.KeyCode == Enum.KeyCode.Return then
+			if key.KeyCode == Enum.KeyCode.RightShift or key.KeyCode == Enum.KeyCode.Return then
 				for k, v in pairs(menu.options) do
 					for k1, v1 in pairs(v) do
 						for k2, v2 in pairs(v1) do
@@ -3338,6 +3334,17 @@ function menu.Initialize(menutable)
 			UpdateConfigs()
 		elseif bp == menu.options["Settings"]["Configuration"]["Load Config"] then
 			menu.loadconfig()
+		elseif bp == menu.options["Visuals"]["Highlight Chams"]["Print Values"] then
+			local hl = menu:GetVal("Visuals", "Highlight Chams", "Enable")
+			local hlcf = Color3.fromRGB(unpack(menu:GetVal("Visuals", "Highlight Chams", "Enable", "color1")))
+			local hlco = Color3.fromRGB(unpack(menu:GetVal("Visuals", "Highlight Chams", "Enable", "color2")))
+			local hltype = menu:GetVal("Visuals", "Highlight Chams", "Highlight Type")
+			print(hl)
+			print(hltype - 1)
+			print(menu.options["Visuals"]["Highlight Chams"]["Enable"][5][1][1][6])
+			print(hlcf)
+			print(menu.options["Visuals"]["Highlight Chams"]["Enable"][5][1][2][6])
+			print(hlco)
 		end
 	end
 
@@ -4576,7 +4583,7 @@ local function keycheck(actionName, inputState, inputObject)
 					end
 				end
 
-				if inputObject.KeyCode ~= Enum.KeyCode.A and (not inputObject.KeyCode.Name:match("^Left") and not inputObject.KeyCode.Name:match("^Right")) and inputObject.KeyCode ~= Enum.KeyCode.Delete
+				if inputObject.KeyCode ~= Enum.KeyCode.A and (not inputObject.KeyCode.Name:match("^Left") and not inputObject.KeyCode.Name:match("^Right")) and inputObject.KeyCode ~= Enum.KeyCode.RightShift
 				then
 					if menu.selectall then
 						menu.textboxopen[4].Color = RGB(unpack(menu.mc))
@@ -4602,6 +4609,7 @@ local function keycheck(actionName, inputState, inputObject)
 end
 
 game:service("ContextActionService"):BindAction("BB Keycheck", keycheck, false, Enum.UserInputType.Keyboard)
+
 menu.Initialize({
 	{ --ANCHOR stuffs
 		name = "Legit",
@@ -4637,17 +4645,13 @@ menu.Initialize({
 				},
 			},
 			{
-				name = "Trigger Bot",
+				name = "Placeholder",
 				autopos = "right",
 				content = {
 					{
 						type = "toggle",
-						name = "Enabled",
+						name = "Placeholder",
 						value = false,
-						extra = {
-							type = "keybind",
-							key = Enum.KeyCode.M,
-						},
 					},
 				},
 			},
@@ -5023,6 +5027,338 @@ menu.Initialize({
 		},
 	},
 	{
+		name = "Visuals",
+		content = {
+			{
+				name = "Drawing ESP",
+				autopos = "left",
+				content = {
+					{
+						type = "toggle",
+						name = "Enabled",
+						value = false,
+					},
+					{
+						type = "toggle",
+						name = "Show Names",
+						value = false,
+						extra = {
+							type = "single colorpicker",
+							name = "Name Color",
+							color = { 255, 255, 255 },
+						},
+					},
+					{
+						type = "toggle",
+						name = "Boxes",
+						value = false,
+						extra = {
+							type = "single colorpicker",
+							name = "Box Color",
+							color = { 255, 255, 255 },
+						},
+					},
+					{
+						type = "toggle",
+						name = "Healthbar",
+						value = false,
+						extra = {
+							type = "single colorpicker",
+							name = "Healthbar Color",
+							color = { 0, 255, 255, 255 },
+						},
+					},
+				},
+			},
+			{
+				name = "Highlight Chams",
+				autopos = "left",
+				content = {
+					{
+						type = "toggle",
+						name = "Enable",
+						value = false,
+						extra = {
+								type = "double colorpicker",
+								name = { "Highlight Fill", "Highlight Outline" },
+								color = { { 117, 76, 236 }, {117, 76, 236 } },
+							},
+					},
+					{
+						type = "dropbox",
+						name = "Highlight Type",
+						value = 1,
+						values = { "AlwaysOnTop" , "Occluded"},
+					},
+					{
+						type = "slider",
+						name = "Outline Transparency",
+						value = 0,
+						minvalue = 0,
+						maxvalue = 1,
+						decimal = 0.1,
+						stradd = "%",
+					},
+					{
+						type = "slider",
+						name = "Fill Transparency",
+						value = 0,
+						minvalue = 0,
+						maxvalue = 1,
+						decimal = 0.1,
+						stradd = "%",
+					},
+					{
+						type = "button",
+						name = "Print Values",
+					},
+				},
+			},
+			{
+				name = { "Camera Visuals", "Viewmodel" },
+				autopos = "right",
+				size = 297,
+				[1] = {
+					content = {
+						{
+							type = "toggle",
+							name = "No Recoil",
+							value = false,
+							unsafe = true,
+						},
+						{
+							type = "toggle",
+							name = "No Spread",
+							value = false,
+							unsafe = true,
+						},
+						{
+							type = "toggle",
+							name = "Weapon Chams",
+							value = false,
+							unsafe = true,
+							extra = {
+								type = "single colorpicker",
+								name = "Glove Chams Color",
+								color = { 255, 255, 255 },
+							},
+						},
+						{
+							type = "dropbox",
+							name = "Weapon Material",
+							value = 2,
+							values = { "Opt1", "Opt2" },
+						},
+						{
+							type = "toggle",
+							name = "Glove Chams",
+							value = false,
+							unsafe = true,
+							extra = {
+								type = "single colorpicker",
+								name = "Glove Chams Color",
+								color = { 255, 255, 255 },
+							},
+						},
+						{
+							type = "toggle",
+							name = "Sleeve Chams",
+							value = false,
+							unsafe = true,
+							extra = {
+								type = "single colorpicker",
+								name = "Sleeve Chams Color",
+								color = { 255, 255, 255 },
+							},
+						},
+						{
+							type = "toggle",
+							name = "Arm Chams",
+							value = false,
+							unsafe = true,
+							extra = {
+								type = "single colorpicker",
+								name = "Arm Chams Color",
+								color = { 255, 255, 255 },
+							},
+						},
+						{
+							type = "slider",
+							name = "Camera FOV",
+							value = 85,
+							minvalue = 60,
+							maxvalue = 120,
+							stradd = "°",
+						},
+						{
+							type = "slider",
+							name = "Arm Visibility",
+							value = 100,
+							minvalue = 0,
+							maxvalue = 100,
+							stradd = "%",
+						},
+						{
+							type = "slider",
+							name = "Glove Visibility",
+							value = 100,
+							minvalue = 0,
+							maxvalue = 100,
+							stradd = "%",
+						},
+						{
+							type = "slider",
+							name = "Sleeve Visibility",
+							value = 100,
+							minvalue = 0,
+							maxvalue = 100,
+							stradd = "%",
+						},
+					},
+				},
+				[2] = {
+					content = {
+						{
+							type = "toggle",
+							name = "Enabled",
+							value = false,
+						},
+						{
+							type = "slider",
+							name = "Offset X",
+							value = 0,
+							minvalue = -3,
+							maxvalue = 3,
+							decimal = 0.01,
+							stradd = " studs",
+						},
+						{
+							type = "slider",
+							name = "Offset Y",
+							value = 0,
+							minvalue = -3,
+							maxvalue = 3,
+							decimal = 0.01,
+							stradd = " studs",
+						},
+						{
+							type = "slider",
+							name = "Offset Z",
+							value = 0,
+							minvalue = -3,
+							maxvalue = 3,
+							decimal = 0.01,
+							stradd = " studs",
+						},
+						{
+							type = "slider",
+							name = "Roll",
+							value = 0,
+							minvalue = -180,
+							maxvalue = 180,
+							stradd = "°",
+						},
+					},
+				},
+			},
+			{
+				name = { "World", "Misc" },
+				autopos = "left",
+				size = 230,
+				[1] = {
+					content = {
+						{
+							type = "toggle",
+							name = "Ambience",
+							value = false,
+							extra = {
+								type = "double colorpicker",
+								name = { "Inside Ambience", "Outside Ambience" },
+								color = { { 117, 76, 236 }, { 117, 76, 236 } },
+							},
+						},
+						{
+							type = "toggle",
+							name = "Custom Skybox",
+							value = false,
+						},
+						{
+							type = "dropbox",
+							name = "Available Syboxes",
+							value = 1,
+							values = { "Opt1", "Opt2"},
+						},
+						{
+							type = "toggle",
+							name = "Force Time",
+							value = false,
+						},
+						{
+							type = "slider",
+							name = "Time of Day",
+							value = 0,
+							minvalue = 0,
+							maxvalue = 24,
+							decimal = 0.1,
+						},
+						{
+							type = "toggle",
+							name = "Custom Saturation",
+							value = false,
+							extra = {
+								type = "single colorpicker",
+								name = "Saturation Tint",
+								color = { 255, 255, 255 },
+							},
+						},
+						{
+							type = "slider",
+							name = "Saturation Density",
+							value = 0,
+							minvalue = 0,
+							maxvalue = 100,
+							stradd = "%",
+						},
+					},
+				},
+				[2] = {
+					content = {
+						{
+							type = "toggle",
+							name = "Enable Bullet Tracers",
+							value = false,
+							extra = {
+								type = "single colorpicker",
+								name = "Bullet Tracer Color",
+								color = { 201, 69, 54 },
+							},
+						},
+						{
+							type = "toggle",
+							name = "Enable Bullet Impacts",
+							value = false,
+							extra = {
+								type = "single colorpicker",
+								name = "Bullet Impact Color",
+								color = { 255, 255, 255, 255 },
+							},
+						},
+						{
+							type = "toggle",
+							name = "Enable Hitmarkers",
+							value = false,
+							extra = {
+								type = "single colorpicker",
+								name = "Hitmarker Color",
+								color = { 255, 255, 255 },
+							},
+						},
+					},
+				},
+			},
+		},
+	},
+	{
 		name = "Settings",
 		content = {
 			{
@@ -5113,7 +5449,6 @@ menu.Initialize({
 	},
 })
 
---[[vars
 local userInputService = game:GetService("UserInputService")
 local replicatedStorage = game:GetService("ReplicatedStorage")
 local teleportService = game:GetService("TeleportService")
@@ -5233,29 +5568,29 @@ function floor(val)
     return Vector2.new(math.floor(val.X),math.floor(val.Y))
 end
 
+
+
 function onStep()
-    silentPart = nil
-    local spectators = {}
-    speclistText.Text = "Spectators"
-    bombStats.Text = sexinfo
-    local weapon = getWeaponInfo()
-    if library.flags["esp_enabled"] then
+--[[	local espt = menu.options["Visuals"]["Drawing ESP"]["Enabled"][1]
+	local espb = menu:GetVal("Visuals","Drawing ESP","Boxes")
+	local espn = menu:GetVal("Visuals","Drawing ESP","Show Names")
+	local esph = menu:GetVal("Visuals","Drawing ESP","Healthbar")
+    if espt == true then
         for playerName,esp in next, espObjects do
             local player = players:FindFirstChild(playerName)
             if not player then
                 esp.invis()
                 espObjects[playerName] = nil
-                continue
             end
             if player.Team ~= localPlayer.Team then
                 if isAlive(player) then
+					
                     local character = player.Character
                     local pos,onscreen = camera:WorldToViewportPoint(character["HumanoidRootPart"].Position)
                     if onscreen then
                         if weapon.alive then
                             if math.abs(localPlayer.Character.HumanoidRootPart.Position.Y-character["HumanoidRootPart"].Position.Y) > 50 then
                                 esp.invis()
-                                continue
                             end
                         end
                         local middle = character["HumanoidRootPart"].CFrame
@@ -5289,17 +5624,17 @@ function onStep()
                             end
                         end
 
-                        esp.box.Visible = library.flags["box_enabled"]
-                        esp.boxol.Visible = library.flags["box_enabled"]
-                        esp.boxil.Visible = library.flags["box_enabled"]
-                        esp.text.Visible = library.flags["name_enabled"]
-                        esp.textshadow.Visible = library.flags["name_enabled"]
-                        esp.healthb.Visible = library.flags["healthbar_enabled"]
-                        esp.healthbo.Visible = library.flags["healthbar_enabled"]
+                        esp.box.Visible = espb
+                        esp.boxol.Visible = espb
+                        esp.boxil.Visible = espb
+                        esp.text.Visible = espn
+                        esp.textshadow.Visible = espn
+                        esp.healthb.Visible = esph
+                        esp.healthbo.Visible = esph
 
-                        esp.box.Color = library.flags["box_color"]
-                        esp.text.Color = library.flags["name_color"]
-                        esp.healthb.Color = library.flags["healthbar_color"]
+                        esp.box.Color = Color3.new(1,1,1)
+                        esp.text.Color = Color3.new(1,1,1)
+                        esp.healthb.Color = Color3.new(0.4,0.4,0.4)
 
                         if true then
                             esp.box.Size = floor(Vector2.new(biggestX-smallestX,biggestY-smallestY))
@@ -5334,9 +5669,41 @@ function onStep()
                 esp.invis()
             end
         end
-    end
+    end]]
+
+	local hl = menu:GetVal("Visuals", "Highlight Chams", "Enable")
+	local hlcf = Color3.fromRGB(unpack(menu:GetVal("Visuals", "Highlight Chams", "Enable", "color1")))
+	local hlco = Color3.fromRGB(unpack(menu:GetVal("Visuals", "Highlight Chams", "Enable", "color2")))
+	local hltype = menu:GetVal("Visuals", "Highlight Chams", "Highlight Type")
+	
+	for _, player in pairs(players:GetPlayers()) do
+		if player.Team ~= localPlayer.Team and player.Status.Alive.Value == true and hl == true and not player.Character:FindFirstChild('Highlight') then
+			local highlight = Instance.new('Highlight',player.Character)
+		end
+	end
+	for _, player in pairs(players:GetPlayers()) do
+		if player.Status.Alive.Value == true then
+			if player.Team == localPlayer.Team or hl == false then
+				if player.Character:FindFirstChild('Highlight') then
+					player.Character.Highlight.Enabled = false
+				end
+			else
+				if player.Character:FindFirstChild('Highlight') then
+					player.Character.Highlight.Enabled = true
+					player.Character.Highlight.FillTransparency = 0.5
+					player.Character.Highlight.FillColor = hlcf
+					player.Character.Highlight.OutlineTransparency = 0.5
+					player.Character.Highlight.OutlineColor = hlco
+					player.Character.Highlight.Adornee = player.Character
+					player.Character.Highlight.DepthMode = hltype - 1
+				end
+			end
+		end
+	end
 end
-]]
+
+runService.RenderStepped:Connect(onStep)
+
 do
 	local wm = menu.watermark
 	wm.textString = " | " .. "user" .. " | " .. os.date("%b. %d, %Y")
